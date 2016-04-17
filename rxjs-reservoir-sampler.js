@@ -23,13 +23,29 @@ function reservoirSampler( opts){
 			subject.next( sampler.read())
 		}
 	})
-	opts.src.take( 3).subscribe( null, null, function(){
+	opts.src.take( n).subscribe( null, null, function(){
 		started= true
 	})
 	return subject
 }
 
 module.exports= reservoirSampler
-module.exports.last= function( opts){
-	return reservoirSampler( opts).last()
+
+function last( opts){
+	var
+	  weightFunction: o.weightFunction|| itemWeightProp,
+	  n: opts.n|| 1,
+	  samplerOpts= {weightFunction, sampleSize: n},
+	  sampler= weightedReservoirSampler( samplerOpts),
+	  push= sampler.push.bind( sampler),
+	  subject= new Rx.BehaviorSubject(),
+	  started= false
+	opts.src.subscribe(function( x)[
+		sampler.push( x)
+	}, null, function(){
+		subject.next(sampler.end())
+	})
+	return subject
 }
+
+module.exports.last= last
