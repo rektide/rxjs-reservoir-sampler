@@ -28,3 +28,8 @@ function reservoirSampler( opts){
 	})
 	return subject
 }
+
+module.exports= reservoirSampler
+module.exports.last= function( opts){
+	return reservoirSampler( opts).last()
+}
